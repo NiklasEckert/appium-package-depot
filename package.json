@@ -1,14 +1,28 @@
 {
   "name": "appium-package-depot",
   "version": "0.1.0",
-  "description": "",
+  "description": "Appium plugin for managing test packages in a shared directory",
   "main": "lib/plugin.js",
   "scripts": {
     "build": "tsc"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "appium",
+    "plugin",
+    "testing",
+    "package",
+    "depot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NiklasEckert/appium-package-depot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/NiklasEckert/appium-package-depot/issues"
+  },
+  "homepage": "https://github.com/NiklasEckert/appium-package-depot#readme",
+  "author": "Niklas Eckert (https://github.com/NiklasEckert)",
+  "license": "MIT",
   "type": "commonjs",
   "appium": {
     "pluginName": "package-depot",
@@ -38,5 +52,10 @@
   "dependencies": {
     "ip": "^2.0.1",
     "multer": "^1.4.5-lts.2"
-  }
+  },
+  "files": [
+    "lib/",
+    "README.md",
+    "package.json"
+  ]
 }
