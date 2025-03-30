@@ -41,7 +41,13 @@ export class PackageManager {
         this.packages = newPackages;
     }
 
-    public addPackage(setupFile: any, packageFile: any, teardownFile: any): string {
+    public addPackage(
+        setupFile: any,
+        packageFile: any,
+        teardownFile: any,
+        unzip: boolean,
+        executablePath: string
+    ): string {
         const uniqueFolderName = Date.now().toString() + '-' + Math.floor(Math.random() * 10000).toString();
         const destFolder = path.join(this.packagesDir, uniqueFolderName);
 
@@ -56,11 +62,12 @@ export class PackageManager {
         let metadata: any = {};
         metadata["id"] = uniqueFolderName;
         metadata["name"] = packageFile.originalname;
-        metadata["packagePath"] = this.packagesDir + uniqueFolderName+ "/";
+        metadata["packagePath"] = this.packagesDir + uniqueFolderName + "/";
 
         if (setupFile) {
             const destPath = path.join(destFolder, setupFile.originalname);
             fs.renameSync(setupFile.path, destPath);
+
             metadata['setup'] = {
                 filename: setupFile.originalname,
                 relativePath: path.join(uniqueFolderName, setupFile.originalname)
@@ -69,9 +76,18 @@ export class PackageManager {
 
         const destPath = path.join(destFolder, packageFile.originalname);
         fs.renameSync(packageFile.path, destPath);
+
+        log.info("UNZIP " + unzip);
+        log.info("Executable " + executablePath);
+        if (unzip) {
+            const AdmZip = require('adm-zip');
+            const zip = new AdmZip(destPath);
+            zip.extractAllTo(destFolder, true);
+        }
+
         metadata['package'] = {
             filename: packageFile.originalname,
-            relativePath: path.join(uniqueFolderName, packageFile.originalname)
+            relativePath: executablePath ? path.join(uniqueFolderName, executablePath) : path.join(uniqueFolderName, packageFile.originalname)
         };
 
         if (teardownFile) {

@@ -116,6 +116,9 @@ export class PackageDepotPlugin extends BasePlugin {
                return res.status(400).json({ error: "Package file not provided" });
            }
 
+           const unzip = String(req.query.unzip).toLowerCase() === "true";
+           const executablePath = req.query['executable-path'] || '';
+
            const packageFile = req.files["package"][0];
            const setupFile = req.files["setup"] ? req.files["setup"][0] : null;
            const teardownFile = req.files["teardown"] ? req.files["teardown"][0] : null;
@@ -128,7 +131,13 @@ export class PackageDepotPlugin extends BasePlugin {
                log.debug("Uploaded teardown script details: ", teardownFile);
            }
 
-           const packageId: string = PackageDepotPlugin.PackageManager.addPackage(setupFile, packageFile, teardownFile);
+           const packageId: string = PackageDepotPlugin.PackageManager.addPackage(
+               setupFile,
+               packageFile,
+               teardownFile,
+               unzip,
+               executablePath
+           );
 
            return res.status(200).json({
                message: "Files uploaded successfully",
