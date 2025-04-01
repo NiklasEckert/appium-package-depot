@@ -1,6 +1,6 @@
 {
   "name": "appium-package-depot",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Appium plugin for managing test packages in a shared directory",
   "main": "lib/plugin.js",
   "scripts": {
