@@ -1,0 +1,104 @@
+import multer from 'multer';
+import { getLogger } from '../logger';
+import { PackageManager } from "../PackageManager";
+import { Application, Request, Response } from 'express';
+
+export class PackageDepotEndpoints {
+    private readonly upload: multer.Multer;
+    private packageManager: PackageManager;
+
+    private static PACKAGE_DEPOT_PATH = "/package-depot/";
+
+    constructor(tempDir: string, packageManager: PackageManager) {
+        const storage = multer.diskStorage({
+            destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void): void => {
+                cb(null, tempDir);
+            },
+            filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
+                cb(null, file.originalname);
+            }
+        })
+        this.upload = multer({ storage });
+        this.packageManager = packageManager;
+    }
+
+    public register(expressApp: Application): void {
+        const log = getLogger('register-endpoints');
+
+        const addPackagePath = PackageDepotEndpoints.PACKAGE_DEPOT_PATH + 'add-package';
+        const removePackagePath = PackageDepotEndpoints.PACKAGE_DEPOT_PATH + 'remove-package';
+
+        expressApp.post(addPackagePath, this.upload.fields([
+            { name: 'setup', maxCount: 1 },
+            { name: 'package', maxCount: 1 },
+            { name: 'teardown', maxCount: 1 }
+        ]), this.addPackage.bind(this));
+
+        expressApp.delete(removePackagePath, this.removePackage.bind(this));
+
+        log.info('Registered the following endpoints:', [
+            addPackagePath,
+            removePackagePath
+        ])
+    }
+
+    private addPackage(req: any, res: any): any {
+        const log = getLogger('add-package');
+        log.debug('PackageDepotEndpoints add package endpoint called');
+
+        if (!(req.files && req.files['package'] && req.files['package'][0])) {
+            log.error('Package file not provided');
+            return res.sendStatus(400).json({ error: 'Package file not provided'});
+        }
+
+        const unzip = String(req.query.unzip).toLowerCase() === 'true';
+        const executablePath = req.query['executable-path'] || '';
+
+        const packageFile = req.files['package'][0];
+        const setupFile = req.files['setup'] ? req.files['setup'][0] : null;
+        const teardownFile = req.files['teardown'] ? req.files['teardown'][0] : null;
+
+        log.debug('Uploaded package file details: ', packageFile);
+        if (setupFile) {
+            log.debug('Uploaded setup script details: ', setupFile);
+        }
+        if (teardownFile) {
+            log.debug('Uploaded teardown script details: ', teardownFile);
+        }
+
+        const packageId: string = this.packageManager.addPackage(
+            setupFile,
+            packageFile,
+            teardownFile,
+            unzip,
+            executablePath
+        );
+
+        log.info(`Package ${packageFile.filename} successfully uploaded and saved as package with id ${packageId}`);
+        return res.status(200).json({
+            message: 'Package depot successfully uploaded',
+            packageId: packageId
+        })
+    }
+
+    private removePackage(req: any, res: any): any {
+        const log = getLogger('remove-package');
+        log.debug('PackageDepotEndpoints remove package endpoint called');
+
+        const packageId: string = req.body.packageId;
+        if (!packageId) {
+            return res.status(400).json({
+                error: 'PackageId is required',
+            });
+        }
+
+        try {
+            this.packageManager.removePackage(packageId);
+            log.info(`Package ${packageId} removed successfully`);
+            return res.status(200).json({ message: `Package ${packageId} removed successfully` });
+        } catch (error: any) {
+            log.error(`Error while removing package: ${error.message}`);
+            return res.status(500).json({ error: error.message });
+        }
+    }
+}

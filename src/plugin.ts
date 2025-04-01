@@ -1,9 +1,9 @@
 import BasePlugin from '@appium/base-plugin'
-import multer from "multer";
 import * as fs from "node:fs";
 import {PackageManager} from "./PackageManager";
 import { exec } from 'child_process';
 import {getLogger} from "./logger";
+import {PackageDepotEndpoints} from "./api/PackageDepotEndpoints";
 
 export class PackageDepotPlugin extends BasePlugin {
     public static PackageManager: PackageManager;
@@ -97,73 +97,7 @@ export class PackageDepotPlugin extends BasePlugin {
 
         PackageDepotPlugin.PackageManager = new PackageManager(packagesDir);
 
-        const storage = multer.diskStorage({
-            destination: (req: any, file: any, cb) => {
-                cb(null, tempDir);
-            },
-            filename: (req: any, file: any, cb) => {
-                cb(null, file.originalname);
-            }
-        });
-        const upload = multer({ storage: storage });
-
-        expressApp.post("/package-depot/add-package", upload.fields([
-            { name: "setup", maxCount: 1 },
-            { name: "package", maxCount: 1 },
-            { name: "teardown", maxCount: 1 }
-        ]), (req: any, res: any) => {
-           const log = getLogger("add-package");
-           log.debug("PackageDepotPlugin add package endpoint called");
-
-           if (!(req.files && req.files["package"] && req.files["package"][0])) {
-               return res.status(400).json({ error: "Package file not provided" });
-           }
-
-           const unzip = String(req.query.unzip).toLowerCase() === "true";
-           const executablePath = req.query['executable-path'] || '';
-
-           const packageFile = req.files["package"][0];
-           const setupFile = req.files["setup"] ? req.files["setup"][0] : null;
-           const teardownFile = req.files["teardown"] ? req.files["teardown"][0] : null;
-
-           log.debug("Uploaded package file details: ", packageFile);
-           if (setupFile) {
-               log.debug("Uploaded setup script details: ", setupFile);
-           }
-           if (teardownFile) {
-               log.debug("Uploaded teardown script details: ", teardownFile);
-           }
-
-           const packageId: string = PackageDepotPlugin.PackageManager.addPackage(
-               setupFile,
-               packageFile,
-               teardownFile,
-               unzip,
-               executablePath
-           );
-
-           return res.status(200).json({
-               message: "Files uploaded successfully",
-               packageId: packageId,
-           });
-        });
-
-        expressApp.delete('/package-depot/remove', (req: any, res: any) => {
-            const log = getLogger("remove");
-            log.debug("PackageDepotPlugin remove package endpoint called");
-
-            const packageId: string = req.body.packageId;
-            if (!packageId) {
-                return res.status(400).json({ error: "PackageId is required" });
-            }
-            try {
-                PackageDepotPlugin.PackageManager.removePackage(packageId);
-                log.debug(`Package ${packageId} removed successfully`);
-                return res.status(200).json({ message: `Package ${packageId} removed successfully` });
-            } catch (error: any) {
-                log.error(`Error while depot plugin remove package: ${error.message}`);
-                return res.status(500).json({ error: error.message });
-            }
-        })
+        const endpoints = new PackageDepotEndpoints(tempDir, PackageDepotPlugin.PackageManager);
+        endpoints.register(expressApp);
     }
 }
