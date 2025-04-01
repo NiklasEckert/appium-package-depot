@@ -1,9 +1,9 @@
 import BasePlugin from '@appium/base-plugin'
 import * as fs from "node:fs";
-import {PackageManager} from "./PackageManager";
+import { PackageManager } from "./PackageManager";
 import { exec } from 'child_process';
-import {getLogger} from "./logger";
-import {PackageDepotEndpoints} from "./api/PackageDepotEndpoints";
+import { getLogger } from "./logger";
+import { PackageDepotEndpoints } from "./api/PackageDepotEndpoints";
 
 export class PackageDepotPlugin extends BasePlugin {
     public static PackageManager: PackageManager;
@@ -15,7 +15,7 @@ export class PackageDepotPlugin extends BasePlugin {
         this.logg.debug("PackageDepot plugin started");
     }
 
-    async createSession(next: () => any, driver: any, jwpDesCaps: any, jwpReqCaps: any, caps: any){
+    async createSession(next: () => any, _driver: any, _jwpDesCaps: any, _jwpReqCaps: any, caps: any){
         this.logg.debug('PackageDepotPlugin createSession hook');
 
         let package_id: string;
@@ -36,11 +36,10 @@ export class PackageDepotPlugin extends BasePlugin {
             }
         }
 
-        const result = await next();
-        return result;
+        return await next();
     }
 
-    async deleteSession(next: () => any, driver: any, sessionId: string) {
+    async deleteSession(next: () => any, _driver: any, _sessionId: string) {
         this.logg.debug('PackageDepotPlugin deleteSession hook');
 
         const result = await next();
@@ -53,7 +52,7 @@ export class PackageDepotPlugin extends BasePlugin {
 
     private executeScript(path: string, workingDirectory: string) {
         const os = process.platform;
-        let command = '';
+        let command: string;
 
         if (os === 'win32') {
             command = 'cmd /c ' + path;
@@ -75,7 +74,7 @@ export class PackageDepotPlugin extends BasePlugin {
 
     public static async updateServer(
         expressApp: any,
-        httpServer: any,
+        _httpServer: any,
         cliArgs: any
     ): Promise<void> {
         const log = getLogger("updateServer");

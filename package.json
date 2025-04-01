@@ -52,7 +52,6 @@
   "dependencies": {
     "@appium/base-plugin": "^2.3.5",
     "adm-zip": "^0.5.16",
-    "ip": "^2.0.1",
     "multer": "^1.4.5-lts.2"
   },
   "files": [

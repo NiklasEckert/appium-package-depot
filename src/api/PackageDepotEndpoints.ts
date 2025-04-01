@@ -1,7 +1,7 @@
 import multer from 'multer';
 import { getLogger } from '../logger';
 import { PackageManager } from "../PackageManager";
-import { Application, Request, Response } from 'express';
+import { Application, Request } from 'express';
 
 export class PackageDepotEndpoints {
     private readonly upload: multer.Multer;
@@ -11,10 +11,10 @@ export class PackageDepotEndpoints {
 
     constructor(tempDir: string, packageManager: PackageManager) {
         const storage = multer.diskStorage({
-            destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void): void => {
+            destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void): void => {
                 cb(null, tempDir);
             },
-            filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
+            filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
                 cb(null, file.originalname);
             }
         })
