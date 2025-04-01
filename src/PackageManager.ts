@@ -77,8 +77,6 @@ export class PackageManager {
         const destPath = path.join(destFolder, packageFile.originalname);
         fs.renameSync(packageFile.path, destPath);
 
-        log.info("UNZIP " + unzip);
-        log.info("Executable " + executablePath);
         if (unzip) {
             const AdmZip = require('adm-zip');
             const zip = new AdmZip(destPath);

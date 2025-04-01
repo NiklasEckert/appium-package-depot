@@ -1,25 +1,26 @@
 import BasePlugin from '@appium/base-plugin'
-import log from "appium/build/lib/logger";
 import multer from "multer";
 import * as fs from "node:fs";
 import {PackageManager} from "./PackageManager";
 import { exec } from 'child_process';
+import {getLogger} from "./logger";
 
 export class PackageDepotPlugin extends BasePlugin {
     public static PackageManager: PackageManager;
     private package: any;
+    private logg: any = getLogger("Plugin");
 
     constructor(pluginName: string, cliArgs: any) {
         super(pluginName, cliArgs);
-        log.debug("PackageDepot plugin started");
+        this.logg.debug("PackageDepot plugin started");
     }
 
     async createSession(next: () => any, driver: any, jwpDesCaps: any, jwpReqCaps: any, caps: any){
-        log.debug('PackageDepotPlugin createSession hook');
+        this.logg.debug('PackageDepotPlugin createSession hook');
 
         let package_id: string;
         let app = caps['alwaysMatch']['appium:app'];
-        log.debug('Value of appium:app', app)
+        this.logg.debug('Value of appium:app', app)
 
         if (app && app.startsWith("depot:")) {
             package_id = app.replace("depot:", "");
@@ -40,7 +41,7 @@ export class PackageDepotPlugin extends BasePlugin {
     }
 
     async deleteSession(next: () => any, driver: any, sessionId: string) {
-        log.debug('PackageDepotPlugin deleteSession hook');
+        this.logg.debug('PackageDepotPlugin deleteSession hook');
 
         const result = await next();
 
@@ -62,13 +63,13 @@ export class PackageDepotPlugin extends BasePlugin {
 
         exec(command, { cwd: workingDirectory, }, (error, stdout, stderr) => {
             if (error) {
-                log.error(`Error: ${error.message}`);
+                this.logg.error(`Error: ${error.message}`);
                 return;
             }
             if (stderr) {
-                log.error(`stderr: ${stderr}`);
+                this.logg.error(`stderr: ${stderr}`);
             }
-            log.debug(`stdout: ${stdout}`);
+            this.logg.debug(`stdout: ${stdout}`);
         });
     }
 
@@ -77,6 +78,7 @@ export class PackageDepotPlugin extends BasePlugin {
         httpServer: any,
         cliArgs: any
     ): Promise<void> {
+        const log = getLogger("updateServer");
         log.info('PackageDepotPlugin updateServer hook');
 
         const pluginArgs = cliArgs.plugin ?? {};
@@ -110,6 +112,7 @@ export class PackageDepotPlugin extends BasePlugin {
             { name: "package", maxCount: 1 },
             { name: "teardown", maxCount: 1 }
         ]), (req: any, res: any) => {
+           const log = getLogger("add-package");
            log.debug("PackageDepotPlugin add package endpoint called");
 
            if (!(req.files && req.files["package"] && req.files["package"][0])) {
@@ -146,6 +149,7 @@ export class PackageDepotPlugin extends BasePlugin {
         });
 
         expressApp.delete('/package-depot/remove', (req: any, res: any) => {
+            const log = getLogger("remove");
             log.debug("PackageDepotPlugin remove package endpoint called");
 
             const packageId: string = req.body.packageId;
