@@ -1,9 +1,9 @@
 import multer from 'multer';
 import { getLogger } from '../logger';
-import { PackageManager } from "../PackageManager";
-import { Application, Request } from 'express';
+import { PackageManager } from "../package-manager";
+import { Application } from 'express';
 
-export class PackageDepotEndpoints {
+export class Endpoints {
     private readonly upload: multer.Multer;
     private packageManager: PackageManager;
 
@@ -11,10 +11,10 @@ export class PackageDepotEndpoints {
 
     constructor(tempDir: string, packageManager: PackageManager) {
         const storage = multer.diskStorage({
-            destination: (_req: Request, _file: Express.Multer.File, cb: (error: Error | null, destination: string) => void): void => {
+            destination: (_req: any, _file: any, cb: any)=>  {
                 cb(null, tempDir);
             },
-            filename: (_req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void): void => {
+            filename: (_req: any, file: any, cb: any) => {
                 cb(null, file.originalname);
             }
         })
@@ -25,8 +25,8 @@ export class PackageDepotEndpoints {
     public register(expressApp: Application): void {
         const log = getLogger('register-endpoints');
 
-        const addPackagePath = PackageDepotEndpoints.PACKAGE_DEPOT_PATH + 'add-package';
-        const removePackagePath = PackageDepotEndpoints.PACKAGE_DEPOT_PATH + 'remove-package';
+        const addPackagePath = Endpoints.PACKAGE_DEPOT_PATH + 'add-package';
+        const removePackagePath = Endpoints.PACKAGE_DEPOT_PATH + 'remove-package';
 
         expressApp.post(addPackagePath, this.upload.fields([
             { name: 'setup', maxCount: 1 },
@@ -44,7 +44,7 @@ export class PackageDepotEndpoints {
 
     private addPackage(req: any, res: any): any {
         const log = getLogger('add-package');
-        log.debug('PackageDepotEndpoints add package endpoint called');
+        log.debug('Endpoints add package endpoint called');
 
         if (!(req.files && req.files['package'] && req.files['package'][0])) {
             log.error('Package file not provided');
@@ -83,7 +83,7 @@ export class PackageDepotEndpoints {
 
     private removePackage(req: any, res: any): any {
         const log = getLogger('remove-package');
-        log.debug('PackageDepotEndpoints remove package endpoint called');
+        log.debug('Endpoints remove package endpoint called');
 
         const packageId: string = req.body.packageId;
         if (!packageId) {

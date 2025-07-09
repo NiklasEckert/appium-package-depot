@@ -62,7 +62,7 @@ export class PackageManager {
         let metadata: any = {};
         metadata["id"] = uniqueFolderName;
         metadata["name"] = packageFile.originalname;
-        metadata["packagePath"] = this.packagesDir + uniqueFolderName + "/";
+        metadata["packagePath"] = path.join(this.packagesDir, uniqueFolderName);
 
         if (setupFile) {
             const destPath = path.join(destFolder, setupFile.originalname);
@@ -85,7 +85,7 @@ export class PackageManager {
 
         metadata['package'] = {
             filename: packageFile.originalname,
-            relativePath: executablePath ? path.join(uniqueFolderName, executablePath) : path.join(uniqueFolderName, packageFile.originalname)
+            relativePath: executablePath ?? packageFile.originalname
         };
 
         if (teardownFile) {

@@ -1,9 +1,10 @@
 import BasePlugin from '@appium/base-plugin'
 import * as fs from "node:fs";
-import { PackageManager } from "./PackageManager";
+import { PackageManager } from "./package-manager";
 import { exec } from 'child_process';
 import { getLogger } from "./logger";
-import { PackageDepotEndpoints } from "./api/PackageDepotEndpoints";
+import { Endpoints } from "./api/endpoints";
+import path from "path";
 
 export class PackageDepotPlugin extends BasePlugin {
     public static PackageManager: PackageManager;
@@ -28,7 +29,7 @@ export class PackageDepotPlugin extends BasePlugin {
             if (!this.package) {
                 throw new Error(`Unable to find package "${package_id}"`);
             } else {
-                app = this.package['packagePath'] + '/' + this.package['package']['filename'];
+                app = path.join(this.package['packagePath'], this.package['package']['relativePath']);
                 caps['alwaysMatch']['appium:app'] = app;
                 if (this.package.setup) {
                     this.executeScript(this.package.setup["filename"], this.package['packagePath']);
@@ -96,7 +97,7 @@ export class PackageDepotPlugin extends BasePlugin {
 
         PackageDepotPlugin.PackageManager = new PackageManager(packagesDir);
 
-        const endpoints = new PackageDepotEndpoints(tempDir, PackageDepotPlugin.PackageManager);
+        const endpoints = new Endpoints(tempDir, PackageDepotPlugin.PackageManager);
         endpoints.register(expressApp);
     }
 }
