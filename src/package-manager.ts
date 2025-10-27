@@ -46,7 +46,7 @@ export class PackageManager {
         packageFile: any,
         teardownFile: any,
         unzip: boolean,
-        executablePath: string
+        executablePath?: string
     ): string {
         const uniqueFolderName = Date.now().toString() + '-' + Math.floor(Math.random() * 10000).toString();
         const destFolder = path.join(this.packagesDir, uniqueFolderName);

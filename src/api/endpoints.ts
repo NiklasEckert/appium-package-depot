@@ -52,7 +52,9 @@ export class Endpoints {
         }
 
         const unzip = String(req.query.unzip).toLowerCase() === 'true';
-        const executablePath = req.query['executable-path'] || '';
+        const executablePath = req.query['executable-path']
+            ? req.query['executable-path'] !== '' ? req.query['executable-path'] : null
+            : null;
 
         const packageFile = req.files['package'][0];
         const setupFile = req.files['setup'] ? req.files['setup'][0] : null;
