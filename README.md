@@ -71,11 +71,57 @@ Only `package` is required. All other fields are optional.
 ### 3. Remove a Package
 
 ```bash
-curl --location --request DELETE 'http://${APPIUM_SERVER_URL}/package-depot/remove-package' \
---header 'Content-Type: application/json' \
---data '{
-  "packageId": "${packageId}"
-}'
+curl --location --request DELETE 'http://${APPIUM_SERVER_URL}/package-depot/remove-package?packageId=1743542085618-1051'
+```
+
+**Example Response:**
+
+```json
+{
+  "message": "Package 1743542085618-1051 removed successfully"
+}
+```
+
+### 4. Get all loaded Packages
+
+```bash
+curl --location 'http://${APPIUM_SERVER_URL}/package-depot/packages/'
+```
+
+**Example Response:**
+
+```json
+{
+  "1762214966168-7472": {
+    "id": "1762214966168-7472",
+    "name": "TestPackage.zip",
+    "packagePath": "packageDepot/packages/1762214966168-7472",
+    "package": {
+      "filename": "TestPackage.zip",
+      "relativePath": "TestPackage.app"
+    }
+  }
+}
+```
+
+### 5. Get a single Package
+
+```bash
+curl --location 'http://${APPIUM_SERVER_URL}/package-depot/packages/?packageId=1762214966168-7472'
+```
+
+**Example Response:**
+
+```json
+{
+  "id": "1762214966168-7472",
+  "name": "TestPackage.zip",
+  "packagePath": "packageDepot/packages/1762214966168-7472",
+  "package": {
+    "filename": "TestPackage.zip",
+    "relativePath": "TestPackage.app"
+  }
+}
 ```
 
 ## Configuration Options

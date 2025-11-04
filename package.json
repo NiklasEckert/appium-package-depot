@@ -1,10 +1,11 @@
 {
   "name": "appium-package-depot",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "Appium plugin for managing test packages in a shared directory",
-  "main": "lib/plugin.js",
+  "main": "dist/plugin.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev:start": "appium --use-plugins package-depot"
   },
   "keywords": [
     "appium",
@@ -42,7 +43,7 @@
   },
   "devDependencies": {
     "@types/multer": "^1.4.12",
-    "appium": "^2.17.1",
+    "appium": "^2.19.0",
     "appium-xcuitest-driver": "^9.0.2",
     "typescript": "^5.8.2"
   },
@@ -52,7 +53,7 @@
   "dependencies": {
     "@appium/base-plugin": "^2.3.5",
     "adm-zip": "^0.5.16",
-    "multer": "^1.4.5-lts.2"
+    "multer": "2.0.2"
   },
   "files": [
     "lib/",

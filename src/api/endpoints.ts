@@ -25,8 +25,11 @@ export class Endpoints {
     public register(expressApp: Application): void {
         const log = getLogger('register-endpoints');
 
+        const packagesPath = Endpoints.PACKAGE_DEPOT_PATH + 'packages';
         const addPackagePath = Endpoints.PACKAGE_DEPOT_PATH + 'add-package';
         const removePackagePath = Endpoints.PACKAGE_DEPOT_PATH + 'remove-package';
+
+        expressApp.get(packagesPath, this.getPackages.bind(this));
 
         expressApp.post(addPackagePath, this.upload.fields([
             { name: 'setup', maxCount: 1 },
@@ -40,6 +43,25 @@ export class Endpoints {
             addPackagePath,
             removePackagePath
         ])
+    }
+
+    private getPackages(req: any, res: any): any {
+        const log = getLogger('packages');
+        log.debug('Endpoints:getPackages called');
+
+        const packageId = req.query.packageId;
+        if (packageId) {
+            const packageInfo = this.packageManager.getPackage(packageId);
+
+            if (!packageInfo) {
+                return res.status(500).json({ error: `Package ${packageId} not found` });
+            }
+
+            return res.status(200).send(packageInfo);
+        }
+
+        const packages = this.packageManager.getPackages();
+        return res.status(200).send(packages);
     }
 
     private addPackage(req: any, res: any): any {
@@ -87,7 +109,7 @@ export class Endpoints {
         const log = getLogger('remove-package');
         log.debug('Endpoints remove package endpoint called');
 
-        const packageId: string = req.body.packageId;
+        const packageId: string = req.query.packageId as string;
         if (!packageId) {
             return res.status(400).json({
                 error: 'PackageId is required',
