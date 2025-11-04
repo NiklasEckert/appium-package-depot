@@ -2,9 +2,10 @@
   "name": "appium-package-depot",
   "version": "0.1.16",
   "description": "Appium plugin for managing test packages in a shared directory",
-  "main": "lib/plugin.js",
+  "main": "dist/plugin.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "dev:start": "appium --use-plugins package-depot"
   },
   "keywords": [
     "appium",
