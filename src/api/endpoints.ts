@@ -87,7 +87,7 @@ export class Endpoints {
         const log = getLogger('remove-package');
         log.debug('Endpoints remove package endpoint called');
 
-        const packageId: string = req.body.packageId;
+        const packageId: string = req.query.packageId as string;
         if (!packageId) {
             return res.status(400).json({
                 error: 'PackageId is required',
